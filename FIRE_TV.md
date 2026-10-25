@@ -1,5 +1,7 @@
 # Free My TV on Fire TV — experimental fork
 
+For the optional, separately reviewed computer-side telemetry profile, see [FIRE_TV_DEBLOAT.md](FIRE_TV_DEBLOAT.md).
+
 This fork adds a Home-button redirect for Fire OS without root, disabling Amazon packages, reading logs, or using
 the TV's loopback ADB. The Amazon launcher remains the system Home. A narrow accessibility service observes only
 foreground package/class names and opens `FireHomeActivity` when the Amazon Home activity appears. It cannot read
