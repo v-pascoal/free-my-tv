@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.freemytv"
-    android:versionCode="4"
-    android:versionName="1.2-firetv.1">
+    android:versionCode="5"
+    android:versionName="1.2-firetv.2">
 
     <permission android:name="io.freemytv.permission.INTERNAL" android:protectionLevel="signature" />
     <uses-permission android:name="io.freemytv.permission.INTERNAL" />
@@ -23,6 +23,11 @@
          returns null). The shelf and streaming apps, the live TV apps and, through the <intent>, every TV app
          (for "All Apps"). -->
     <queries>
+        <package android:name="com.amazon.venezia" />
+        <package android:name="cm.aptoidetv.pt" />
+        <package android:name="app.flicky" />
+        <package android:name="org.fdroid.fdroid" />
+        <package android:name="com.aurora.store" />
         <package android:name="com.netflix.ninja" />
         <package android:name="com.google.android.youtube.tv" />
         <package android:name="com.amazon.firetv.youtube" />

@@ -51,7 +51,23 @@ Run `bash tools/test-fire-tv.sh` for Home, Settings, dialog, screensaver and unr
 `tools/check.sh` for the upstream build, catalogues and web packages. Device test results are recorded separately
 after real hardware checks; do not infer them from a successful compilation.
 
-### Observed on a Fire TV Stick 4K 2nd generation
+### App store shortcut (1.2-firetv.2)
+
+Fire TV defaults now include a storefront button beside Live TV in the upper-right corner. Existing custom top-button
+orders receive it once, after Live TV (or first if Live TV was hidden); removing it later in Top Buttons is respected.
+The button always opens a remote-navigable chooser of installed stores, even when only one is installed.
+Supported packages: Amazon Appstore, Aptoide TV, Flicky/F-Droid, F-Droid and Aurora Store. The launcher does not download
+APKs or request package-install privileges. Store apps need to be installed separately from their own official sources.
+On Fire OS 8, Amazon's generic launcher alias returns through Amazon Home; this button uses the exported Appstore
+`ADEHomeActivity` when available to avoid the Home redirect intercepting the store. Other versions fall back to the
+store's advertised launcher intent.
+
+On the test device Aptoide TV 5.1.3 (official Aptoide metadata/download, checksum and certificate checked) and Flicky
+4.6.1 armeabi-v7a (official GitHub release, SHA-256 and APK signature checked) were installed alongside Amazon Appstore.
+These are separate applications, not bundled in this fork. Their first-run setup and package-install prompts belong to
+each store. The launcher neither bypasses purchases nor grants the stores privileged installation permissions.
+
+### Hardware validation
 
 Tested on AFTKM / karat, Fire OS 8.1.8.5, Android 11 (API 30):
 
