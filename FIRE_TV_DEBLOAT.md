@@ -65,8 +65,11 @@ computer-applied profile: use the tool's `restore` action and keep the local jou
 - Minerva, Minerva Logcat and Telemetry Emitter remained running with their original PIDs even after the request to
   kill background-safe processes. Their sampled pre-change PSS totaled 6,495 KiB (about 6.3 MiB). **No immediate RAM
   saving or complete telemetry blocking was established.** Do not substitute a package count for a performance gain.
-- Startup behavior after a cold reboot and long-session reliability still need validation. No reboot was performed
-  as part of this audit. The launcher's Home redirection continues to need Amazon Home.
+- After an owner-authorized reboot, boot completion was confirmed and all seven packages remained disabled. Minerva,
+  Minerva Logcat and Telemetry Emitter nevertheless started again with new PIDs. Their combined sampled PSS was
+  5,719 KiB; comparison with the pre-reboot sample is not a controlled performance measurement. The accessibility
+  service rebound and pressing Home returned to Free My TV. Immediate automatic Home display during startup and
+  long-session reliability remain unverified. The launcher's Home redirection continues to need Amazon Home.
 - After application, Prime Video, Amazon Appstore and Home returns were checked. The initial native-Settings probe
   did not retain focus; a direct `am start -W` retest and three subsequent open/stay-open trials passed. There was no
   AndroidRuntime crash in the inspected log window. This is basic navigation verification, not a streaming/DRM test.
