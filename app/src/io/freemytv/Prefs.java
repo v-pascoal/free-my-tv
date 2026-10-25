@@ -210,6 +210,18 @@ final class Prefs {
 
     // MARK: - Top buttons
 
+    /** One-time upgrade: keep the person's order and place Store beside Live TV, without re-adding it if removed later. */
+    static void addStoreShortcut() {
+        if (sp().getBoolean("storeShortcutAdded", false)) return;
+        List<String> keys = topButtons();
+        if (keys != null && !keys.contains(HomeApps.TOP_STORE)) {
+            int afterLive = keys.indexOf(HomeApps.TOP_LIVE) + 1;
+            keys.add(afterLive, HomeApps.TOP_STORE);
+            setTopButtons(keys);
+        }
+        sp().edit().putBoolean("storeShortcutAdded", true).apply();
+    }
+
     /**
      * The round buttons at the top right, in order: "live", "inputs" and/or "settings". null until the user edits
      * them (then HomeApps.TOP_DEFAULT applies); empty when they took all three off.

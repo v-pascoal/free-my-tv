@@ -57,7 +57,7 @@ final class HomeApps {
 
     static final int APP = 0, LIVE_TV = 1, INPUT = 2, ALL_APPS = 3, SETTINGS = 4, ANDROID_SETTINGS = 5, DEVICE = 6;
     /** The "HDMI Inputs" button: opens the bottom drawer on the inputs (the home screen handles it). */
-    static final int INPUTS = 7;
+    static final int INPUTS = 7, APP_STORE = 8;
     /** Image size of each card (16:9; on screen it shows up to ~330 px wide). */
     static final int TILE_W = 384, TILE_H = 216;
 
@@ -234,9 +234,11 @@ final class HomeApps {
 
     // MARK: - Top buttons (the round ones at the top right)
 
-    static final String TOP_LIVE = "live", TOP_INPUTS = "inputs", TOP_SETTINGS = "settings";
-    static final List<String> TOP_DEFAULT = Collections.unmodifiableList(java.util.Arrays.asList(TOP_LIVE, TOP_INPUTS, TOP_SETTINGS));
-    static final int MAX_TOP = TOP_DEFAULT.size();
+    static final String TOP_LIVE = "live", TOP_STORE = "store", TOP_INPUTS = "inputs", TOP_SETTINGS = "settings";
+    static final List<String> TOP_DEFAULT = Collections.unmodifiableList(HomeMode.AMAZON
+            ? java.util.Arrays.asList(TOP_LIVE, TOP_STORE, TOP_INPUTS, TOP_SETTINGS)
+            : java.util.Arrays.asList(TOP_LIVE, TOP_INPUTS, TOP_SETTINGS));
+    static final int MAX_TOP = 4;
 
     /** The keys of the top buttons, in order (Settings > Top Buttons; by default Live TV, HDMI Inputs, Settings). */
     static List<String> topButtonKeys() {
@@ -258,6 +260,7 @@ final class HomeApps {
         switch (key) {
             case TOP_LIVE: return action(LIVE_TV, TOP_LIVE, Ui.tr("light|Live TV"), "live_tv");
             case TOP_INPUTS: return action(INPUTS, TOP_INPUTS, Ui.tr("HDMI Inputs"), "hdmi");
+            case TOP_STORE: return action(APP_STORE, TOP_STORE, Ui.tr("App store"), "store");
             default: return action(SETTINGS, TOP_SETTINGS, Ui.tr("light|Settings"), "settings");
         }
     }
@@ -545,8 +548,14 @@ final class HomeApps {
                 intent = new Intent().setComponent(new ComponentName(a, SettingsActivity.class));
                 break;
             case ANDROID_SETTINGS:
+                if (HomeMode.AMAZON) {
+                    FireTvHome.openSettings(a);
+                    return true;
+                }
                 intent = new Intent(Settings.ACTION_SETTINGS);
                 break;
+            case APP_STORE:
+                return AppStores.open(a);
             case DEVICE:
                 // A fresh task: else Back walks through whatever the maker's settings app had open before
                 intent = new Intent(it.intent).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

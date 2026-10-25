@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.freemytv"
-    android:versionCode="3"
-    android:versionName="1.2">
+    android:versionCode="5"
+    android:versionName="1.2-firetv.2">
+
+    <permission android:name="io.freemytv.permission.INTERNAL" android:protectionLevel="signature" />
+    <uses-permission android:name="io.freemytv.permission.INTERNAL" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -20,6 +23,11 @@
          returns null). The shelf and streaming apps, the live TV apps and, through the <intent>, every TV app
          (for "All Apps"). -->
     <queries>
+        <package android:name="com.amazon.venezia" />
+        <package android:name="cm.aptoidetv.pt" />
+        <package android:name="app.flicky" />
+        <package android:name="org.fdroid.fdroid" />
+        <package android:name="com.aurora.store" />
         <package android:name="com.netflix.ninja" />
         <package android:name="com.google.android.youtube.tv" />
         <package android:name="com.amazon.firetv.youtube" />
@@ -179,6 +187,18 @@
             <meta-data
                 android:name="android.accessibilityservice"
                 android:resource="@xml/remote_key_service" />
+        </service>
+
+        <!-- Fire TV Home redirection: only window identities, never screen content or remote keys. -->
+        <service
+            android:name=".FireTvHomeService"
+            android:exported="true"
+            android:label="Free My TV Home"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/fire_tv_home_service" />
         </service>
 
         <!-- tools/photos.py writes photos here where adb can't reach the app's external folder (Android 11, Fire OS 8);

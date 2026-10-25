@@ -39,6 +39,15 @@ final class Symbols {
         synchronized (CACHE) {
             if (CACHE.containsKey(name)) return CACHE.get(name);
             Bitmap b = null;
+            if ("store".equals(name)) {
+                b = Bitmap.createBitmap(144, 144, Bitmap.Config.ARGB_8888);
+                android.graphics.drawable.Drawable icon = c.getDrawable(R.drawable.store);
+                icon.setBounds(0, 0, 144, 144);
+                icon.draw(new Canvas(b));
+                b = b.extractAlpha();
+                CACHE.put(name, b);
+                return b;
+            }
             try (InputStream in = c.getAssets().open("symbols/" + name + ".png")) {
                 b = BitmapFactory.decodeStream(in);
                 if (b != null) {

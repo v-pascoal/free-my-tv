@@ -17,9 +17,11 @@ esac
 
 if [ "$what" = all ] || [ "$what" = android ]; then
   ./build.sh
+  bash tools/test-fire-tv.sh
 fi
 
 if [ "$what" = all ] || [ "$what" = web ]; then
+  python3 -m unittest discover -s tests -p 'test_*.py'
   python3 tools/translate.py --check
 
   # The generic LG and Samsung packages land where your own build leaves yours (with your city and TMDB key):
