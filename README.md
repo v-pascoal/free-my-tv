@@ -4,6 +4,9 @@
 
 # Free My TV
 
+**Fire TV fork:** experimental Home-button support, with Amazon apps preserved. Read [FIRE_TV.md](FIRE_TV.md) for setup,
+privacy, rollback and limitations. Upstream's memory-saving measurements do not describe this Fire OS mode.
+
 **A fast, ad-free home screen for Google TV, LG and Samsung TVs.**
 
 Trending picks from your own apps, the weather at a glance, and a look that follows the sunset.<br>

@@ -545,6 +545,10 @@ final class HomeApps {
                 intent = new Intent().setComponent(new ComponentName(a, SettingsActivity.class));
                 break;
             case ANDROID_SETTINGS:
+                if (HomeMode.AMAZON) {
+                    FireTvHome.openSettings(a);
+                    return true;
+                }
                 intent = new Intent(Settings.ACTION_SETTINGS);
                 break;
             case DEVICE:

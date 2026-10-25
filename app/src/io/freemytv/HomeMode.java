@@ -44,8 +44,8 @@ final class HomeMode {
     static final String FREE = "free", ORIGINAL = "original";
 
     /**
-     * Fire TV (Fire OS): Amazon's launcher keeps the Home button (`priority=950` on `CATEGORY_HOME`), so the switch
-     * refuses Free My TV mode while Original and the watchdog still run.
+     * Fire TV keeps the system HOME role. This fork uses a window-identity accessibility service instead;
+     * Amazon packages remain protected, and no on-device ADB is needed for the Fire TV switch.
      */
     static final boolean AMAZON = "Amazon".equalsIgnoreCase(Build.MANUFACTURER) || "Amazon".equalsIgnoreCase(Build.BRAND);
 
@@ -222,6 +222,10 @@ final class HomeMode {
 
     /** Asks the main process to switch (the settings screen calls this). */
     static void request(Context c, String mode) {
+        if (AMAZON) {
+            applyNow(c, mode);
+            return;
+        }
         ModeJob.schedule(c, ModeJob.APPLY, mode, 0);
     }
 
@@ -295,6 +299,32 @@ final class HomeMode {
 
     // MARK: - Switches (main process, from ModeJob)
 
+    /** Fire OS: reversible local opt-in; the service is enabled once over computer ADB. No package is disabled. */
+    private static void applyFire(Context c, boolean on) {
+        if (on && !FireTvHome.serviceEnabled(c)) {
+            done(c, Ui.tr("Fire TV Home needs setup from your computer. See FIRE_TV.md."));
+            return;
+        }
+        JSONObject s = state(c);
+        try {
+            s.put("mode", on ? FREE : ORIGINAL).put("homeReverted", false)
+                    .put("since", System.currentTimeMillis()).put("error", "");
+            s.remove("busy");
+            save(c, s);
+            if (on) {
+                Watchdog.clear(c);
+                notice(c, Ui.tr("Fire TV Home is on. Amazon apps stay enabled."));
+                FireTvHome.open(c);
+            } else {
+                SleepTimer.stop(c);
+                notice(c, Ui.tr("Original mode: Fire TV Home redirection is off."));
+                FireTvHome.original(c);
+            }
+        } catch (Exception e) {
+            done(c, e.getMessage());
+        }
+    }
+
     static void applyNow(Context c, String mode) {
         synchronized (RUN) {
             if (FREE.equals(mode)) applyFree(c); else applyOriginal(c);
@@ -304,7 +334,7 @@ final class HomeMode {
     private static void applyFree(Context c) {
         JSONObject s = state(c);
         if (AMAZON) {
-            done(c, Ui.tr("On Fire TV the Home button belongs to Amazon's home screen. Free My TV stays an app here: open it from your apps."));
+            applyFire(c, true);
             return;
         }
         // Kalley 43G200 turns Google TV's setup app back on at every start: without its home screen the next start
@@ -432,6 +462,10 @@ final class HomeMode {
     }
 
     private static void applyOriginal(Context c) {
+        if (AMAZON) {
+            applyFire(c, false);
+            return;
+        }
         JSONObject s = state(c);
         try (Adb adb = connect(c, s)) {
             busy(c, Ui.tr("Turning the apps back on…"));
@@ -545,6 +579,10 @@ final class HomeMode {
     /** Safety net: our home screen crashed 3 times in a row. The home screen and the screensaver go back; the rest stays. */
     static void revertHomeNow(Context app) {
         synchronized (RUN) {
+            if (AMAZON) {
+                applyFire(app, false);
+                return;
+            }
             JSONObject s = state(app);
             try (Adb adb = Adb.connect(app, 10_000, null)) {
                 boolean ours = homeHolder(adb).contains(PKG);

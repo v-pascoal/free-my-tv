@@ -18,12 +18,16 @@ final class Capabilities {
     static final String OVERLAY = "overlay";
 
     /** An option's needs. */
-    static final String NEED_ADB = "adb", NEED_REMOTE_BUTTONS = "remote-buttons", NEED_OVERLAY = OVERLAY,
+    static final String NEED_ADB = "adb", NEED_SLEEP = "sleep", NEED_REMOTE_BUTTONS = "remote-buttons", NEED_OVERLAY = OVERLAY,
             NEED_LIVE_TV = "live-tv";
 
     /** null where this TV has what `need` names; else why not, and what would change it, for the person to read. */
     static String missing(Context c, String need) {
         switch (need) {
+            case NEED_SLEEP:
+                if (!HomeMode.AMAZON) return missing(c, NEED_ADB);
+                return android.os.Build.VERSION.SDK_INT >= 28 && FireTvHome.active(c) && FireTvHome.serviceEnabled(c)
+                        ? null : Ui.tr("Needs Free My TV mode: turn it on in Home Screen.");
             case NEED_ADB:
                 return adb(c) ? null : Ui.tr("Needs Free My TV mode: turn it on in Home Screen.");
             case NEED_REMOTE_BUTTONS:
@@ -45,6 +49,7 @@ final class Capabilities {
      * the state file changes, as the settings ask on every frame.
      */
     static synchronized boolean adb(Context c) {
+        if (HomeMode.AMAZON) return false; // the Home redirect does not unblock the TV's loopback ADB
         File f = new File(c.getFilesDir(), "home-state.json");
         long stamp = f.lastModified() * 31 + f.length();
         if (stamp != stateStamp) {

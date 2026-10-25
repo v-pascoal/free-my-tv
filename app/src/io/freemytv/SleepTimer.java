@@ -140,6 +140,10 @@ final class SleepTimer {
     /** The alarm went off (main process): sleep, unless the TV is off, or was turned off since (and on again). */
     static void fire(Context c, long setAt) {
         if (!c.getSystemService(PowerManager.class).isInteractive()) return;
+        if (HomeMode.AMAZON) {
+            AppLog.w(FireTvHomeService.sleep() ? "Sleep timer: Fire TV locked" : "Sleep timer: Fire OS refused screen lock");
+            return;
+        }
         try (Adb adb = Adb.connect(c, 10_000, null)) {
             if (sleptSince(adb, setAt)) {
                 AppLog.w("Sleep timer: the TV was turned off since, left on");
