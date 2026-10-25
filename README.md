@@ -4,8 +4,9 @@
 
 # Free My TV
 
-**Fire TV fork:** experimental Home-button support, with Amazon apps preserved. Read [FIRE_TV.md](FIRE_TV.md) for setup,
-privacy, rollback and limitations. Upstream's memory-saving measurements do not describe this Fire OS mode.
+**Fork experimental com adaptações para Amazon Fire TV.** Baseado no
+[Free My TV original, de simbasjungles](https://github.com/simbasjungles/free-my-tv).
+[Veja o que adicionamos neste fork](#o-que-este-fork-adiciona-ao-projeto-original).
 
 **A fast, ad-free home screen for Google TV, LG and Samsung TVs.**
 
@@ -17,6 +18,82 @@ Open source. Built with Claude Code. One button to undo.
 <img src=".github/preview.webp" width="880" alt="The Free My TV home screen: a glass shelf of apps, trending picks, and a drawer with the weather and crypto prices">
 
 </div>
+
+## O que este fork adiciona ao projeto original
+
+As melhorias abaixo foram desenvolvidas **neste fork** para usar o Free My TV no Fire TV. Elas não fazem parte da
+versão original usada como base. O projeto original continua sendo a origem da interface, das recomendações,
+do clima, das cotações e da tela de descanso.
+
+| Área | Diferença deste fork |
+|---|---|
+| **Botão Home no Fire TV** | A versão original bloqueia a troca de Home em aparelhos Amazon. Este fork adiciona um redirecionamento: ao apertar a casinha, o Free My TV abre sobre a Home da Amazon. Não exige root nem ADB interno no aparelho. |
+| **Loja no menu superior** | Novo botão com ícone de lojinha, ao lado de TV ao Vivo, no canto superior direito. Ele sempre abre uma lista para escolher a loja na hora. |
+| **Escolha de lojas** | Reconhece Amazon Appstore, Aptoide TV, Flicky/F-Droid, F-Droid e Aurora Store quando instaladas. No aparelho de teste, Amazon Appstore, Aptoide TV e Flicky foram instaladas e tiveram sua abertura pelo menu verificada. As lojas são aplicativos separados; não vêm embutidas no fork. |
+| **Abertura da Appstore da Amazon** | Usa a atividade própria da loja, quando disponível, para evitar que o atalho padrão passe pela Home da Amazon e seja interceptado pelo redirecionamento. |
+| **Debloat de telemetria** | Ferramenta própria pelo computador, com um perfil restrito a sete pacotes auditados. Verifica modelo e versão do sistema, estado dos pacotes, UID, permissões de hardware e donos das redes Wi-Fi antes de alterar algo. |
+| **Restauração do debloat** | Registra o estado anterior antes de cada mudança e restaura esse estado exato. Preserva aplicativos que já estavam desativados e evita sobrescrever alterações posteriores. O registro fica apenas no computador, fora do Git. |
+| **Compatibilidade e testes** | Correções de compilação no Windows com caminhos contendo espaços, proteção das transições para as configurações da Amazon, 15 testes da lógica de Home e 11 testes do perfil de debloat e sua restauração. |
+
+### Debloat: o que foi aplicado e o que realmente mudou
+
+O perfil foi aplicado e testado em um **Fire TV Stick 4K de 2ª geração, AFTKM/karat, com Fire OS 8.1.8.5
+(RS8185.3891N), Android 11**. Outros modelos e versões ficam em modo de auditoria até serem validados.
+
+Os sete pacotes desativados foram:
+
+- `com.amazon.neo.minerva`
+- `com.amazon.neo.minerva.logcat`
+- `com.amazon.device.telemetry.emitter`
+- `com.amazon.dp.logger`
+- `com.amazon.perfcollection`
+- `com.amazon.wirelessmetrics.service`
+- `com.amazon.tv.acr`
+
+Todos permaneceram desativados após reiniciar. Também testamos restaurar os sete ao estado original e reaplicar o
+perfil. **Mesmo assim, Minerva, Minerva Logcat e Telemetry Emitter voltaram a executar após a reinicialização.**
+Não foi comprovada economia relevante de RAM nem bloqueio completo da telemetria. Desativar um pacote não garante
+que os processos dele parem no Fire OS.
+
+O perfil não desinstala aplicativos do sistema, apaga dados, bloqueia atualizações, altera DNS ou limita globalmente
+os processos em segundo plano. A Home da Amazon, as lojas, os serviços de hardware e os aplicativos de streaming
+são preservados.
+
+### O que já verificamos no aparelho
+
+- Botão Home abrindo o Free My TV, inclusive após reiniciar, com o serviço de redirecionamento reconectado.
+- Abertura das três lojas pelo novo menu e retorno ao Free My TV.
+- Acesso ao Prime Video e às configurações da Amazon.
+- Recomendações carregando e painel inferior mostrando clima de São Paulo, previsão e cotações em reais.
+  Para abrir esse painel, selecione um aplicativo na prateleira e pressione **↓**; **Voltar** fecha o painel.
+- Checks do projeto passando: compilação Android, testes, traduções e empacotamento LG/Samsung.
+
+Clima, recomendações e cotações são recursos herdados; a configuração para São Paulo/Brasil foi validada no aparelho
+de teste. Chaves de API, configurações pessoais, APKs personalizados e registros do aparelho não são publicados.
+
+### Limites e instruções específicas deste fork
+
+**Este fork não substitui o Fire OS nem assume a Home nativa.** A Home da Amazon continua instalada e ativa, e pode
+aparecer brevemente antes do redirecionamento. A economia de **60% de RAM** citada na documentação original foi
+medida pelo projeto original em uma TCL com Google TV; ela **não é um resultado deste fork no Fire TV**.
+
+O temporizador de sono tem uma adaptação experimental, ainda sem validação de disparo real. Remapeamento dos botões
+de aplicativos do controle e substituição automática da tela de descanso do sistema não estão implementados neste
+modo Fire TV. Abertura automática da Home imediatamente durante o boot, estabilidade em sessões longas e qualidade
+de reprodução/DRM também precisam de validação adicional.
+
+- **Instalação, Home, lojas e reversão da Home:** [FIRE_TV.md](FIRE_TV.md).
+- **Pesquisa, perfil de telemetria, aplicação e restauração:** [FIRE_TV_DEBLOAT.md](FIRE_TV_DEBLOAT.md).
+- **Código das alterações:** [branch deste fork](https://github.com/v-pascoal/free-my-tv/tree/codex/fire-tv-support).
+
+Escolher **Home Screen → Original** desfaz apenas o redirecionamento da Home. O debloat aplicado pelo computador
+tem sua própria ação `restore` e depende do registro local; a troca de Home não restaura esses pacotes.
+
+---
+
+**Documentação do projeto original:** as seções abaixo foram mantidas como referência dos recursos e das plataformas
+originais. Para instalar ou configurar **este fork no Fire TV**, siga os documentos específicos acima. O site
+freemytv.io e os APKs publicados por simbasjungles correspondem ao projeto original, não à nossa adaptação.
 
 ## What you get
 
